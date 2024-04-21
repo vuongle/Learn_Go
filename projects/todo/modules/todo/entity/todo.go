@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrTitleBlank = errors.New("title can not be blank")
+	ErrTitleBlank  = errors.New("title can not be blank")
+	ErrItemDeleted = errors.New("item deleted")
 )
 
 /*

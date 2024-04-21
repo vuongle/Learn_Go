@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"todo/common"
 	"todo/modules/todo/entity"
 	transport "todo/modules/todo/transport/gin"
@@ -44,85 +43,12 @@ func main() {
 			todos.POST("", transport.CreateTodoItem(db))
 			todos.GET("", getTodoItems(db))
 			todos.GET("/:id", transport.GetTodoItem(db))
-			todos.PATCH("/:id", updateTodoItemById(db))
-			todos.DELETE("/:id", deleteTodoItemById(db))
+			todos.PATCH("/:id", transport.UpdateTodoItemById(db))
+			todos.DELETE("/:id", transport.DeleteTodoItemById(db))
 		}
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-}
-
-func updateTodoItemById(db *gorm.DB) func(*gin.Context) {
-	return func(ctx *gin.Context) {
-
-		// Get param id from request and validate
-		id, err := strconv.Atoi(ctx.Param("id"))
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		// When the param id is ok -> parse data from request
-		var data entity.TodoUpdateBody
-		if err := ctx.ShouldBind(&data); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		// update data to db
-		if err := db.Where("id = ?", id).Updates(&data).Error; err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		// Response to client
-		// ctx.JSON(http.StatusOK, gin.H{
-		// 	"data": true,
-		// })
-		ctx.JSON(http.StatusOK, common.SingleSuccessResponse(true))
-	}
-}
-
-func deleteTodoItemById(db *gorm.DB) func(*gin.Context) {
-	return func(ctx *gin.Context) {
-
-		// Get param id from request and validate
-		id, err := strconv.Atoi(ctx.Param("id"))
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		// When the param id is ok -> delete data
-		updateBody := map[string]interface{}{
-			"status": "Deleted",
-		}
-		if err := db.Table(entity.TodoItem{}.TableName()).Where("id = ?", id).Updates(updateBody).Error; err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		// Response to client
-		// ctx.JSON(http.StatusOK, gin.H{
-		// 	"data": true,
-		// })
-		ctx.JSON(http.StatusOK, common.SingleSuccessResponse(true))
-	}
 }
 
 func getTodoItems(db *gorm.DB) func(*gin.Context) {
