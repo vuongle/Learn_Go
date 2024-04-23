@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"todo/common"
 	"todo/modules/todo/entity"
 )
 
@@ -11,6 +12,10 @@ import (
 // Can put this method in sql.go file.
 func (s *sqlStore) Create(ctx context.Context, data *entity.TodoCreationBody) error {
 	fmt.Println("--------------- STORAGE")
-	dbErr := s.db.Create(&data).Error
-	return dbErr
+	if dbErr := s.db.Create(&data).Error; dbErr != nil {
+		// wrap the db error into pre-defined error
+		return common.ErrDB(dbErr)
+	}
+
+	return nil
 }

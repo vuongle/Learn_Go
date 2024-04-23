@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"todo/common"
 	"todo/modules/todo/entity"
 )
 
@@ -33,7 +34,8 @@ func (biz *createTodoBusiness) CreateTodo(ctx context.Context, data *entity.Todo
 	}
 
 	if err := biz.store.Create(ctx, data); err != nil {
-		return err
+		// wrap the err to pre-defined custom error that matches with this logic
+		return common.ErrCannotCreateEntity(entity.EntityName, err)
 	}
 
 	return nil

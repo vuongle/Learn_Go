@@ -18,9 +18,7 @@ func UpdateTodoItemById(db *gorm.DB) func(*gin.Context) {
 		// Get param id from request and validate
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, common.ErrInvalidRequest(err))
 
 			return
 		}

@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"todo/common"
 	"todo/modules/todo/entity"
 )
 
@@ -19,7 +20,7 @@ type getTodoBusiness struct {
 func (biz *getTodoBusiness) GetTodoById(ctx context.Context, id int) (*entity.TodoItem, error) {
 	data, err := biz.store.GetTodo(ctx, map[string]interface{}{"id": id})
 	if err != nil {
-		return nil, err
+		return nil, common.ErrCannotGetEntity(entity.EntityName, err)
 	}
 
 	return data, nil

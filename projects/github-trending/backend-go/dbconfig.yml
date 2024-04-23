@@ -1,0 +1,5 @@
+development:
+  dialect: mysql
+  datasource: root:root@tcp(localhost:3306)/github_trending?charset=utf8mb4&parseTime=True&loc=Local
+  dir: migrations/mysql
+  table: migrations
