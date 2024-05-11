@@ -20,9 +20,7 @@ func CreateTodoItem(db *gorm.DB) func(*gin.Context) {
 		// the above UnmarshalJSON() method is AUTO called here(inside flow of ShouldBind)
 		err := ctx.ShouldBind(&data) // pass pointer of data (not pass data)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, common.ErrInvalidRequest(err))
 
 			return
 		}
@@ -30,9 +28,7 @@ func CreateTodoItem(db *gorm.DB) func(*gin.Context) {
 		store := storage.NewSQLStore(db)
 		biz := business.NewCreateTodoBiz(store) // create an instance of business struct
 		if err := biz.CreateTodo(ctx.Request.Context(), &data); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, err)
 
 			return
 		}

@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"todo/common"
 	"todo/modules/todo/entity"
 )
 
@@ -27,17 +28,21 @@ func (biz *updateTodoBusiness) UpdateTodoById(ctx context.Context, id int, dataU
 	// First, get data from db and check(assumption this is a logic)
 	data, err := biz.store.GetTodo(ctx, map[string]interface{}{"id": id})
 	if err != nil {
-		return err
+		if err == common.RecordNotFound {
+			return common.ErrCannotGetEntity(entity.EntityName, err)
+		}
+
+		return common.ErrCannotUpdateEntity(entity.EntityName, err)
 	}
 
 	// because "data" is a pointer. Yo get value from the pointer, use "*"
 	if data.Status != nil && *data.Status == entity.StatusDeleted {
-		return entity.ErrItemDeleted
+		return common.ErrEntityDeleted(entity.EntityName, entity.ErrItemDeleted)
 	}
 
 	// Second, start updating
 	if err := biz.store.UpdateTodo(ctx, map[string]interface{}{"id": id}, dataUpdate); err != nil {
-		return err
+		return common.ErrCannotUpdateEntity(entity.EntityName, err)
 	}
 
 	return nil

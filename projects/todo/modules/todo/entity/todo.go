@@ -5,6 +5,10 @@ import (
 	"todo/common"
 )
 
+const (
+	EntityName = "todo_item"
+)
+
 var (
 	ErrTitleBlank  = errors.New("title can not be blank")
 	ErrItemDeleted = errors.New("item deleted")
@@ -27,7 +31,7 @@ func (TodoItem) TableName() string { return "todo_items" }
  */
 type TodoCreationBody struct {
 	Id          int         `json:"-" gorm:"column:id"` //`json:"-": not set in post body, gorm:"column:id" -> need to get from db
-	Title       string      `json:"title" gorm:"column:title"`
+	Title       string      `json:"title" gorm:"column:titless"`
 	Description string      `json:"description" gorm:"column:description"`
 	Status      *TodoStatus `json:"status" gorm:"column:status"`
 }

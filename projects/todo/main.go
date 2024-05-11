@@ -3,10 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"todo/common"
-	"todo/modules/todo/entity"
+	"todo/middleware"
 	transport "todo/modules/todo/transport/gin"
 
 	"github.com/gin-gonic/gin"
@@ -28,20 +26,24 @@ func main() {
 	// 2. Start a http server
 	r := gin.Default()
 
+	// Add middleware to all apis : 1st way
+	r.Use(middleware.Recovery())
+
 	// 3. Create REST APIS
 	//// Naming conventions for apis
 	//// POST /v1/todos (for create action)
 	//// GET /v1/todos (for read action)
 	//// (PUT | PATCH) /v1/todos (for update action)
 	//// DELETE /v1/todos/:id (for delete action)
+
 	// create a group apis for v1
-	v1 := r.Group("/v1")
+	v1 := r.Group("/v1" /*,middleware.Recovery()*/) // Add middleware to one group : 2nd way
 	{
 		// create a group apis for "todos"
 		todos := v1.Group("/todos")
 		{
-			todos.POST("", transport.CreateTodoItem(db))
-			todos.GET("", getTodoItems(db))
+			todos.POST("" /*middleware.Recovery(), */, transport.CreateTodoItem(db)) // Add middleware to one api : 3rd way
+			todos.GET("", transport.ListTodoItems(db))
 			todos.GET("/:id", transport.GetTodoItem(db))
 			todos.PATCH("/:id", transport.UpdateTodoItemById(db))
 			todos.DELETE("/:id", transport.DeleteTodoItemById(db))
@@ -49,41 +51,4 @@ func main() {
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-}
-
-func getTodoItems(db *gorm.DB) func(*gin.Context) {
-	return func(ctx *gin.Context) {
-		var paging common.Paging
-
-		err := ctx.ShouldBind(&paging) // pass pointer of data (not pass data)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		paging.Process()
-		var result []entity.TodoItem
-		offset := (paging.Page - 1) * paging.Limit
-
-		dbErr := db.Where("status <> ?", "Deleted").
-			Order("id desc").
-			Offset(offset).
-			Limit(paging.Limit).
-			Find(&result).Error
-		if dbErr != nil {
-			ctx.JSON(http.StatusCreated, gin.H{
-				"error": dbErr.Error(),
-			})
-
-			return
-		}
-
-		// ctx.JSON(http.StatusOK, gin.H{
-		// 	"data": result,
-		// })
-		ctx.JSON(http.StatusOK, common.SuccessResponse(result, paging, nil))
-	}
 }
