@@ -1,2 +1,6 @@
 projects/simple-micro/gateway/dbdata/*
 projects/simple-micro/gateway/kongadata/*
+
+
+projects/simple-micro/volumes/dbdata/*
+projects/simple-micro/volumes/kongadata/*

@@ -1,0 +1,6 @@
+Chúng ta có thể dùng function bình thường để thay thế cho methods. Vậy tại sao chúng ta lại sử dụng methods thay vì sử dụng function bình thường? 
+Để trả lời cho câu hỏi này, chúng ta có hai lí do chính sau:
+
+Lí do thứ nhất: Vì Golang không phải là ngôn ngữ hướng đối tượng, vậy nên chúng ta phải sử dụng một số thứ thay thế như struct để quản lý các thuộc tính, 
+và methods để quản lí các methods trong class.
+Lí do thứ hai: Methods có thể định nghĩa trùng tên nhau nhưng khác kiểu. Function lại không hỗ trợ điều đó.

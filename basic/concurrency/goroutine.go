@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -11,26 +12,51 @@ func sayHi(s string) {
 		fmt.Println(s)
 	}
 }
-func main() {
-	// starts a new goroutine running "sayHi()" function with the keyword "go"
-	go sayHi("AAA")
-	sayHi("BBB") // this belongs to main routine
 
-	// ------------------------- routine and channels---------------------------------------
-	// create a channel by make() function
-	ch := make(chan int)
+// Use WaitGroup to wait all routines finish before main finishes
+var wg sync.WaitGroup
 
-	// start a new goroutine with anonymous function(no name)
-	// this routine is used to add data to channel
-	go func() {
-		for i := 1; i <= 10; i++ {
-			time.Sleep(time.Second * 1)
-			ch <- i // assign a value to a channel
-		}
-	}()
-
-	// receive data from channel (from main routine)
-	// channel is first-in first-out
-	fmt.Println("channel: ", <-ch) // get value from channel once -> print once
-	fmt.Println("channel: ", <-ch)
+func go1() {
+	for i := 1; i <= 10; i++ {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Printf("Logic %d in go1\n", i)
+	}
+	wg.Done() // indicate that routine "go1" is done. If there is no this line, a deadlock will happen
 }
+
+func go2() {
+	for i := 1; i <= 10; i++ {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Printf("Logic %d in go2\n", i)
+	}
+	wg.Done() // indicate that routine "go2" is done
+}
+
+func main() {
+
+	// -----------------------------------
+	// Simple goroutine
+	// -----------------------------------
+
+	// starts a new goroutine running "sayHi()" function with the keyword "go"
+	//go sayHi("AAA")
+	//sayHi("BBB") // this belongs to main routine
+
+	// -----------------------------------
+	// Synchonized goroutine
+	// -----------------------------------
+	fmt.Println("Logic in main")
+
+	wg.Add(2)
+	go go1()
+	go go2()
+	wg.Wait()
+	fmt.Println("Progam ends")
+
+	// -----------------------------------
+	// routine and channels
+	// -----------------------------------
+
+}
+
+//https://www.youtube.com/watch?v=y8_YRzXFQ84&list=PLVDJsRQrTUz5icsxSfKdymhghOtLNFn-k&index=4

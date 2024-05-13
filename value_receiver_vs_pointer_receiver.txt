@@ -1,0 +1,47 @@
+Pointer receiver giống với con trỏ được truyền vào function theo kiểu tham chiếu, trong methods chúng ta có thể thay đổi được giá trị của receiver.
+Đối với value receiver, chúng ta chỉ có thể truy cập giá trị, nhưng không thể thay đổi được giá trị của nó. 
+-> Khi muốn thay đổi giá trị receiver bên trong methods, bạn dùng pointer receiver. 
+-> Khi methos chỉ muốn truy cập giá trị của receiver, không làm thay đổi gì giá trị của receiver, bạn dùng value receiver.
+
+Chay code ben duoi de thay su khac biet
+```code
+package main
+
+import (
+	"fmt"
+)
+
+type Employee struct {
+	name string
+	age  int
+}
+
+/*
+Method with value receiver
+*/
+func (e Employee) changeName(newName string) {
+	e.name = newName
+    fmt.Println("Employee INSIDE change name: ", e)
+}
+
+/*
+Method with pointer receiver
+*/
+func (e *Employee) changeAge(newAge int) {
+	e.age = newAge
+}
+
+func main() {
+	e := Employee{
+		name: "Mark Andrew",
+		age:  50,
+	}
+	fmt.Printf("Employee name before change: %s", e.name)
+	e.changeName("Michael Andrew")
+	fmt.Printf("\nEmployee name after change: %s", e.name)
+
+	fmt.Printf("\n\nEmployee age before change: %d", e.age)
+	e.changeAge(51)
+	fmt.Printf("\nEmployee age after change: %d", e.age)
+}
+```
