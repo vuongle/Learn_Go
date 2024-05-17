@@ -28,18 +28,29 @@ Run Konga
 
 ```
 http://localhost:1337/register
+
+admin account
+    username: vuong
+    email: vuonglg@gmail.com
+    pwd: vuong1986
 ```
 
-Test Kong
+Kong gateway URL (Client access services via this URL)
+
+```
+http://localhost:8000/
+```
+
+Kong admin URL
 
 ```
 http://localhost:8001/
 ```
 
-Konga Connection With Kong
+Create a Konga Connection to Kong
 
 ```shell
-Name: Kong
+Name: Kong (or any name)
 Kong Admin URL: http://kong:8001/
 ```
 
