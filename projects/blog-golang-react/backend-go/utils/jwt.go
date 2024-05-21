@@ -9,7 +9,7 @@ import (
 const SECRET_KEY = "blog_golang_api"
 
 func GenerateJwt(issuer string) (string, error) {
-	claims := jwt.RegisteredClaims{
+	claims := &jwt.RegisteredClaims{
 		Issuer:    issuer,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 	}
@@ -25,9 +25,11 @@ func GenerateJwt(issuer string) (string, error) {
 }
 
 func ParseJwt(cookie string) (string, error) {
-	token, err := jwt.ParseWithClaims(
+	claims := jwt.RegisteredClaims{}
+
+	_, err := jwt.ParseWithClaims(
 		cookie,
-		jwt.RegisteredClaims{},
+		&claims,
 		func(t *jwt.Token) (interface{}, error) {
 			return []byte(SECRET_KEY), nil
 		},
@@ -36,8 +38,6 @@ func ParseJwt(cookie string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	claims := token.Claims.(*jwt.RegisteredClaims)
 
 	return claims.Issuer, nil
 }
