@@ -37,7 +37,7 @@ func Upload(c *fiber.Ctx) error {
 	c.Status(http.StatusOK)
 	return c.JSON(
 		fiber.Map{
-			"url": "http://localhost:3000/apis/storage/" + fileName,
+			"url": "http://localhost:3001/apis/storage/" + fileName,
 		},
 	)
 }

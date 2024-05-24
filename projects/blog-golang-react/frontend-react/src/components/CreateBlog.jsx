@@ -49,7 +49,7 @@ const CreateBlog = () => {
     const body = {
       ...data,
       image: imageData,
-      userid: userData.id,
+      user_id: userData.id.toString(),
     };
     axios
       .post(
@@ -62,7 +62,7 @@ const CreateBlog = () => {
       .then(function (response) {
         // handle success
         setLoading(false);
-        navigate("/home");
+        navigate("/");
       })
       .catch(function (error) {
         setLoading(false);
@@ -96,10 +96,10 @@ const CreateBlog = () => {
     formData.append("name", imageUpload.name);
 
     const config = {
-      headers: { "content-type": "multipart/form-data" },
-      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: false,
     };
-    let url = `${REACT_APP_BACKEND_URL}/apis/upload-post-image`;
+    let url = `http://localhost:3001/apis/upload-post-image`;
 
     axios
       .post(url, formData, config)
@@ -165,7 +165,7 @@ const CreateBlog = () => {
                   visibility="hidden"
                 />
                 <div className="flex flex-col">
-                  <div className="pb-2">Upload Image</div>
+                  <div className="pb-2">Upload Image (Less then 2MB)</div>
 
                   {image ? (
                     <div className="pt-4">
@@ -188,18 +188,11 @@ const CreateBlog = () => {
                   )}
                 </div>
               </label>
-              {/* <input
-                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="grid-email"
-                type="file"
-                name="image"
-                onChange={handleImage}
-              /> */}
             </div>
             <div className="flex items-center justify-cente px-5">
               <button
                 className="shadow bg-indigo-600 hover:bg-indigo-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-6 rounded"
-                // type="submit"
+                type="button"
                 onClick={uploadImage}
                 disabled={loading ? true : false}
               >

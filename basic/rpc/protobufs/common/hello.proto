@@ -1,0 +1,18 @@
+// phiên bản proto3
+syntax = "proto3";
+
+option go_package = "./common";
+
+// tên package được sinh ra
+package common;
+
+// message là một đơn vị dữ liệu trong Protobuf
+message String {
+    // chuỗi string được truyền vào hàm RPC
+    string value = 1;
+}
+
+// định nghĩa interface HelloService
+service HelloService {
+    rpc Hello (String) returns (String);
+}

@@ -17,6 +17,7 @@ const EditPost = () => {
     watch,
     formState: { errors },
   } = useForm();
+
   const options = {
     position: "bottom-right",
     style: {
@@ -42,8 +43,8 @@ const EditPost = () => {
         }
       )
       .then(function (response) {
-        setSinglePost(response?.data?.data);
-        console.log(response?.data?.data);
+        setSinglePost(response?.data?.data?.blog);
+        console.log(response?.data?.data?.blog);
       })
       .catch(function (error) {
         console.log(error);
@@ -130,7 +131,7 @@ const EditPost = () => {
               <div className="flex flex-col">
                 <div className="pb-2">Upload Image</div>
 
-                {image || singlePost ? (
+                {image || singlePost?.image !== '' ? (
                   <div className="pt-4">
                     <div>
                       <img
@@ -142,22 +143,11 @@ const EditPost = () => {
                   </div>
                 ) : (
                   <div className="pb-5">
-                    <img
-                      src="/upload-image.svg"
-                      style={{ background: "#EFEFEF" }}
-                      className="h-full w-48"
-                    />
+                    <img src="/upload-image.svg" style={{ background: "#EFEFEF" }} className="h-full w-48" alt="" />
                   </div>
                 )}
               </div>
             </label>
-            {/* <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              id="grid-email"
-              type="file"
-              name="image"
-              onChange={handleImage}
-            /> */}
           </div>
           <div className="flex items-center justify-cente px-5">
             <button

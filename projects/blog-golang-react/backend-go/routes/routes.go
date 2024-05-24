@@ -19,7 +19,7 @@ func SetupRoutes(app *fiber.App) {
 
 	app.Get("apis/posts", controllers.GetAllPosts)
 	app.Get("apis/posts/:id", controllers.GetPostDetail)
-	app.Get("apis/posts-by-user", controllers.UniquePost)
+	app.Get("apis/posts-by-user/:user_id", controllers.UniquePost)
 
 	app.Post("apis/upload-post-image", controllers.Upload)
 	app.Static("apis/storage/", "./storage")

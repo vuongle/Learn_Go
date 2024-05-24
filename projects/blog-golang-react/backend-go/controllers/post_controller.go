@@ -120,6 +120,10 @@ func UniquePost(c *fiber.Ctx) error {
 	cookie := c.Cookies("jwt")
 	id, _ := utils.ParseJwt(cookie)
 
+	if id == "" {
+		id = c.Params("user_id")
+	}
+
 	blogs := repositories.GetPostsByUserId(&id)
 	c.Status(http.StatusOK)
 	return c.JSON(

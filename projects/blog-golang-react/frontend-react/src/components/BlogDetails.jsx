@@ -24,8 +24,8 @@ const BlogDetail = () => {
         }
       )
       .then(function (response) {
-        setSinglePost(response?.data?.data);
-        console.log(response?.data?.data);
+        setSinglePost(response?.data?.data?.blog);
+        console.log(response?.data?.data?.blog);
       })
       .catch(function (error) {
         console.log(error);
@@ -36,14 +36,15 @@ const BlogDetail = () => {
   useEffect(() => {
     singleBlog();
   }, []);
+
   return (
     <div className="relative">
       <div className="max-w-3xl mb-10 rounded overflow-hidden flex flex-col mx-auto text-center">
-        <div className="max-w-3xl mx-auto text-xl sm:text-4xl font-semibold inline-block hover:text-indigo-600 transition duration-500 ease-in-out inline-block mb-2">
+        <div className="max-w-3xl mx-auto text-xl sm:text-4xl font-semibold hover:text-indigo-600 transition duration-500 ease-in-out inline-block mb-2">
           The Best Activewear from the Nordstrom Anniversary Sale
         </div>
 
-        <img className="w-full h-96 my-4" src={singlePost?.image} />
+        <img className="w-full h-96 my-4" src={singlePost?.image} alt="" />
         <p className="text-gray-700 text-base leading-8 max-w-2xl mx-auto">
           Author: {singlePost?.user?.first_name} {singlePost?.user?.last_name}
         </p>

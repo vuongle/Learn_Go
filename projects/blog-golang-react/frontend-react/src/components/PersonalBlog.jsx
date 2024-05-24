@@ -28,18 +28,12 @@ const PersonalBlog = () => {
   const [openSnackbar] = useSnackbar(options);
   const uniqueBlog = () => {
     setLoading(true);
+    const User = JSON.parse(localStorage.getItem("user"));
     axios
       .get(
-        `${REACT_APP_BACKEND_URL}/apis/posts-by-user`,
+        `${REACT_APP_BACKEND_URL}/apis/posts-by-user/${User.id}`,
         {
-
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
-            'Cookie': 'jwt=11111111111111111111111111111111111aaaaaaa'
-          },
           withCredentials: true,
-          credentials: 'include',
         }
       )
       .then(function (response) {
@@ -75,7 +69,7 @@ const PersonalBlog = () => {
       )
       .then(function (response) {
         setDeleteLoading(false);
-        openSnackbar(response?.data?.message);
+        openSnackbar("Delete blog successfully");
 
         uniqueBlog();
 
@@ -106,7 +100,7 @@ const PersonalBlog = () => {
       <div className="container my-12 mx-auto px-4 md:px-12">
         <div className="flex flex-wrap -mx-1 lg:-mx-4">
           {blogData?.map((blog) => (
-            <div className="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
+            <div key={blog.id} className="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
               <article className="overflow-hidden rounded-lg shadow-lg">
                 <a href={`/detail/${blog.id}`}>
                   <img
@@ -126,7 +120,7 @@ const PersonalBlog = () => {
                     </a>
                   </h1>
                   <p className="text-grey-darker text-sm">
-                    {new Date(blog?.CreatedAt).toLocaleString()}
+                    {new Date(blog?.created_at).toLocaleString()}
                   </p>
                 </header>
 
