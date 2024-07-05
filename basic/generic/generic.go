@@ -2,9 +2,9 @@ package main
 
 import "fmt"
 
-// define a func with generic
-// T: a generic type
-// comparable: built-in interface of Go. allow to use ==, !=, ... on "T"
+// define a generic func
+// T: a generic type (called Type Parameter)
+// comparable: built-in interface of Go (called Type Constraint). allow to use ==, !=, ... on "T"
 // s: a slice having type T
 func Index[T comparable](s []T, x T) int {
 	// loop each item in slice "s" by using for...range

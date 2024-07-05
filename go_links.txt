@@ -1,0 +1,6 @@
+Interview Questions
+	https://haiconmeo.info/blog/code-blog/interview-golang-backend-p1
+	
+	https://github.com/Ebazhanov/linkedin-skill-assessments-quizzes/blob/main/go/go-quiz.md
+	-> Den cau 45
+	
