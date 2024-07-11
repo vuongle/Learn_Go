@@ -12,7 +12,7 @@ import (
 func GetKeys() func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		clientId := os.Getenv("PAYPAL_CLIENT_ID")
-		clientSecret := os.Getenv("PAYPAL_SECRET_KEY")
+		clientSecret := os.Getenv("PAYPAL_SK")
 		fmt.Println(clientId)
 		fmt.Println(clientSecret)
 
