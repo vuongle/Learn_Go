@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home page</title>
+  </head>
+  <body>
+    <h1>Welcome to Firebase Authentication with Golang</h1>
+    <h2>Login to access premium content</h2>
+    <form action="">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" /> <br />
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" />
+      <br />
+      <button type="submit" id="signin">Sign In</button>
+    </form>
+    <br />
+    <p>Or <a href="signup.html">Sign up</a></p>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signInAnonymously,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCo91Qmh1FKIlq9x6qqUOEvSB01N0YXOcY",
+        authDomain: "my-flutter-auth-324dd.firebaseapp.com",
+        projectId: "my-flutter-auth-324dd",
+        storageBucket: "my-flutter-auth-324dd.appspot.com",
+        messagingSenderId: "391152315865",
+        appId: "1:391152315865:web:c2ef7539b0ecc71e643dc8",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      function login(e) {
+        e.preventDefault();
+        const email = document.querySelector("#email").value;
+        const password = document.querySelector("#password").value;
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            user
+              .getIdToken()
+              .then((idToken) => {
+                console.log(idToken);
+                // redirect to the premium page
+                window.location.href = `http://localhost:8000/premium?auth-token=${idToken}`;
+              })
+              .catch((err) => {
+                alert("Failed to authorize token");
+                window.location.href =
+                  "http://localhost:8000/static/index.html";
+                console.error("Token error: ", err);
+              });
+          })
+          .catch((err) => {
+            console.log("Sign-in error: ", err);
+          });
+
+        clearForm();
+      }
+
+      function clearForm() {
+        document.querySelector("#email").value = "";
+        document.querySelector("#password").value = "";
+      }
+
+      document.getElementById("signin").onclick = login;
+
+      // checking if the user is logged in
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          console.log(user);
+        } else {
+          console.log("No user signed in");
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-module github.com/vuongle/stripe-payment
+module github.com/vuongle/go-with-firebase
 
 go 1.22.2
 

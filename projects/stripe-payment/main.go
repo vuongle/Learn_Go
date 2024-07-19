@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -9,23 +8,31 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/stripe/stripe-go/v79"
+	"github.com/vuongle/stripe-payment/middlewares"
 	"github.com/vuongle/stripe-payment/routers"
 )
 
 func main() {
 
-	// Load env and Setup configs
+	/// Load and set environment variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("can not load environment variables")
 	}
 	stripe.Key = os.Getenv("STRIPE_SK")
-	fmt.Println(stripe.Key)
-	fmt.Println(os.Getenv("ANDROID_SDK"))
 
-	// 1. Start a http server
+	/// Load and setup firebase
+	auth, err := middlewares.NewAuthMiddleware("my-flutter-auth-324dd-firebase-adminsdk.json", nil)
+	if err != nil {
+		panic(err)
+	}
+
+	/// Start a http server: middlewares, routers, ...
 	r := gin.Default()
+
 	r.Use(cors.Default())
+	r.Use(auth.AuthenticationFunc())
+
 	routers.RegisterRouters(r)
 
 	r.Run(":8000") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
