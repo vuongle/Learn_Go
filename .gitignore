@@ -4,3 +4,5 @@ projects/simple-micro/gateway/kongadata/*
 
 projects/simple-micro/volumes/dbdata/*
 projects/simple-micro/volumes/kongadata/*
+/projects/go-with-firebase/my-flutter-auth-324dd-firebase-adminsdk.json
+/projects/stripe-payment/my-flutter-auth-324dd-firebase-adminsdk.json
