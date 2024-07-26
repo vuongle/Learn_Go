@@ -1,0 +1,33 @@
+syntax="proto3";
+
+import "laptop_message.proto";
+import "filter_message.proto";
+
+option go_package = "github.com/vuongle/grpc/pb";
+
+message CreateLaptopRequest {
+    Laptop laptop = 1;
+}
+
+message CreateLaptopResponse {
+    string id = 1;
+}
+
+message SearchLaptopRequest {
+    Filter filter = 1;
+}
+
+message SearchLaptopResponse {
+    Laptop laptop = 1;
+}
+
+service LaptopService {
+    // Unary RPC:
+    // client sends a single request to the server and gets a single response back
+    rpc CreateLaptop (CreateLaptopRequest) returns (CreateLaptopResponse){};
+
+    // Server-side streaming RPC:
+    // client sends a request to the server and gets a stream to read a sequence of messages back.  The client reads from the returned stream 
+    // until there are no more messages. gRPC guarantees message ordering within an individual RPC call.
+    rpc SearchLaptop(SearchLaptopRequest) returns (stream SearchLaptopResponse) {};
+}
