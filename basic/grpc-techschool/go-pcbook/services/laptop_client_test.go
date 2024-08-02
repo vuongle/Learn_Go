@@ -18,7 +18,11 @@ import (
 func TestClientCreateLaptop(t *testing.T) {
 	t.Parallel()
 
-	laptopServer, serverAddr := startGRPCServer(t)
+	laptopStore := storages.NewInMemoryLaptopStore()
+	imageStore := storages.NewDiskImageStore("img")
+	ratingStore := storages.NewInMemoryRatingStore()
+
+	laptopServer, serverAddr := startGRPCServer(t, laptopStore, imageStore, ratingStore)
 	laptopClient := newTestLaptopClient(t, serverAddr)
 
 	laptop := sample.NewLaptop()
@@ -34,14 +38,19 @@ func TestClientCreateLaptop(t *testing.T) {
 	require.Equal(t, laptopID, res.Id)
 
 	// check that the laptop is saved to the store correctly
-	saved, err := laptopServer.Store.Find(laptopID)
+	saved, err := laptopServer.LaptopStore.Find(laptopID)
 	require.NoError(t, err)
 	require.NotNil(t, saved)
 	requireSameLaptop(t, laptop, saved)
 }
 
-func startGRPCServer(t *testing.T) (*services.LaptopServer, string) {
-	laptopServer := services.NewLaptopServer(storages.NewInMemoryLaptopStore())
+func startGRPCServer(
+	t *testing.T,
+	laptopStore storages.LaptopStore,
+	imageStore storages.ImageStore,
+	ratingStore storages.RatingStore,
+) (*services.LaptopServer, string) {
+	laptopServer := services.NewLaptopServer(laptopStore, imageStore, ratingStore)
 	grpcServer := grpc.NewServer()
 	pb.RegisterLaptopServiceServer(grpcServer, laptopServer)
 	listener, err := net.Listen("tcp", ":0") //":0" will use a random available port

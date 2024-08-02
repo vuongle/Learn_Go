@@ -1,8 +1,11 @@
 syntax="proto3";
 
+package grpcservice.laptop;
+
 import "memory_message.proto";
 
-option go_package = "github.com/vuongle/grpc/pb";
+//option go_package = "github.com/vuongle/grpc/pb";
+option go_package = ".;pb";
 
 message CPU {
 

@@ -29,7 +29,8 @@ protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative proto/*.pro
 
 ## Viewing until
 
-https://www.youtube.com/watch?v=i9H3BaRGLEc&list=PLy_6D98if3UJd5hxWNfAqKMr15HZqFnqf&index=15
+https://www.youtube.com/watch?v=kVpB-uH6X-s&list=PLy_6D98if3UJd5hxWNfAqKMr15HZqFnqf&index=20
+paused at: 18:00
 
 ## Some usaful commands
 
@@ -43,4 +44,19 @@ Kill process
 
 ```
 taskkill /PID 18264 /f
+```
+
+List nginx console app running
+
+```
+tasklist /fi "imagename eq nginx.exe"
+```
+
+nginx commands
+
+```
+nginx -s stop	fast shutdown
+nginx -s quit	graceful shutdown
+nginx -s reload	changing configuration, starting new worker processes with a new configuration, graceful shutdown of old worker processes
+nginx -s reopen	re-opening log files
 ```

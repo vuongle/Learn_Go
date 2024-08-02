@@ -22,8 +22,20 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LaptopServiceClient interface {
+	// Unary RPC:
+	// client sends a single request to the server and gets a single response back
 	CreateLaptop(ctx context.Context, in *CreateLaptopRequest, opts ...grpc.CallOption) (*CreateLaptopResponse, error)
+	// Server-side streaming RPC:
+	// client sends a request to the server and gets a stream to read a sequence of messages back.  The client reads from the returned stream
+	// until there are no more messages. gRPC guarantees message ordering within an individual RPC call.
 	SearchLaptop(ctx context.Context, in *SearchLaptopRequest, opts ...grpc.CallOption) (LaptopService_SearchLaptopClient, error)
+	// Client-side streaming RPC:
+	UploadImage(ctx context.Context, opts ...grpc.CallOption) (LaptopService_UploadImageClient, error)
+	// A bidirectional streaming RPC:
+	// both sides send a sequence of messages using a read-write stream. The two streams
+	// operate independently, so clients and servers can read and write in whatever
+	// order they like
+	RateLaptop(ctx context.Context, opts ...grpc.CallOption) (LaptopService_RateLaptopClient, error)
 }
 
 type laptopServiceClient struct {
@@ -36,7 +48,7 @@ func NewLaptopServiceClient(cc grpc.ClientConnInterface) LaptopServiceClient {
 
 func (c *laptopServiceClient) CreateLaptop(ctx context.Context, in *CreateLaptopRequest, opts ...grpc.CallOption) (*CreateLaptopResponse, error) {
 	out := new(CreateLaptopResponse)
-	err := c.cc.Invoke(ctx, "/LaptopService/CreateLaptop", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpcservice.laptop.LaptopService/CreateLaptop", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +56,7 @@ func (c *laptopServiceClient) CreateLaptop(ctx context.Context, in *CreateLaptop
 }
 
 func (c *laptopServiceClient) SearchLaptop(ctx context.Context, in *SearchLaptopRequest, opts ...grpc.CallOption) (LaptopService_SearchLaptopClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LaptopService_ServiceDesc.Streams[0], "/LaptopService/SearchLaptop", opts...)
+	stream, err := c.cc.NewStream(ctx, &LaptopService_ServiceDesc.Streams[0], "/grpcservice.laptop.LaptopService/SearchLaptop", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,12 +87,89 @@ func (x *laptopServiceSearchLaptopClient) Recv() (*SearchLaptopResponse, error) 
 	return m, nil
 }
 
+func (c *laptopServiceClient) UploadImage(ctx context.Context, opts ...grpc.CallOption) (LaptopService_UploadImageClient, error) {
+	stream, err := c.cc.NewStream(ctx, &LaptopService_ServiceDesc.Streams[1], "/grpcservice.laptop.LaptopService/UploadImage", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &laptopServiceUploadImageClient{stream}
+	return x, nil
+}
+
+type LaptopService_UploadImageClient interface {
+	Send(*UploadImageRequest) error
+	CloseAndRecv() (*UploadImageResponse, error)
+	grpc.ClientStream
+}
+
+type laptopServiceUploadImageClient struct {
+	grpc.ClientStream
+}
+
+func (x *laptopServiceUploadImageClient) Send(m *UploadImageRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *laptopServiceUploadImageClient) CloseAndRecv() (*UploadImageResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(UploadImageResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *laptopServiceClient) RateLaptop(ctx context.Context, opts ...grpc.CallOption) (LaptopService_RateLaptopClient, error) {
+	stream, err := c.cc.NewStream(ctx, &LaptopService_ServiceDesc.Streams[2], "/grpcservice.laptop.LaptopService/RateLaptop", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &laptopServiceRateLaptopClient{stream}
+	return x, nil
+}
+
+type LaptopService_RateLaptopClient interface {
+	Send(*RateLaptopRequest) error
+	Recv() (*RateLaptopResponse, error)
+	grpc.ClientStream
+}
+
+type laptopServiceRateLaptopClient struct {
+	grpc.ClientStream
+}
+
+func (x *laptopServiceRateLaptopClient) Send(m *RateLaptopRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *laptopServiceRateLaptopClient) Recv() (*RateLaptopResponse, error) {
+	m := new(RateLaptopResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // LaptopServiceServer is the server API for LaptopService service.
 // All implementations must embed UnimplementedLaptopServiceServer
 // for forward compatibility
 type LaptopServiceServer interface {
+	// Unary RPC:
+	// client sends a single request to the server and gets a single response back
 	CreateLaptop(context.Context, *CreateLaptopRequest) (*CreateLaptopResponse, error)
+	// Server-side streaming RPC:
+	// client sends a request to the server and gets a stream to read a sequence of messages back.  The client reads from the returned stream
+	// until there are no more messages. gRPC guarantees message ordering within an individual RPC call.
 	SearchLaptop(*SearchLaptopRequest, LaptopService_SearchLaptopServer) error
+	// Client-side streaming RPC:
+	UploadImage(LaptopService_UploadImageServer) error
+	// A bidirectional streaming RPC:
+	// both sides send a sequence of messages using a read-write stream. The two streams
+	// operate independently, so clients and servers can read and write in whatever
+	// order they like
+	RateLaptop(LaptopService_RateLaptopServer) error
 	mustEmbedUnimplementedLaptopServiceServer()
 }
 
@@ -93,6 +182,12 @@ func (UnimplementedLaptopServiceServer) CreateLaptop(context.Context, *CreateLap
 }
 func (UnimplementedLaptopServiceServer) SearchLaptop(*SearchLaptopRequest, LaptopService_SearchLaptopServer) error {
 	return status.Errorf(codes.Unimplemented, "method SearchLaptop not implemented")
+}
+func (UnimplementedLaptopServiceServer) UploadImage(LaptopService_UploadImageServer) error {
+	return status.Errorf(codes.Unimplemented, "method UploadImage not implemented")
+}
+func (UnimplementedLaptopServiceServer) RateLaptop(LaptopService_RateLaptopServer) error {
+	return status.Errorf(codes.Unimplemented, "method RateLaptop not implemented")
 }
 func (UnimplementedLaptopServiceServer) mustEmbedUnimplementedLaptopServiceServer() {}
 
@@ -117,7 +212,7 @@ func _LaptopService_CreateLaptop_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/LaptopService/CreateLaptop",
+		FullMethod: "/grpcservice.laptop.LaptopService/CreateLaptop",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LaptopServiceServer).CreateLaptop(ctx, req.(*CreateLaptopRequest))
@@ -146,11 +241,63 @@ func (x *laptopServiceSearchLaptopServer) Send(m *SearchLaptopResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _LaptopService_UploadImage_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(LaptopServiceServer).UploadImage(&laptopServiceUploadImageServer{stream})
+}
+
+type LaptopService_UploadImageServer interface {
+	SendAndClose(*UploadImageResponse) error
+	Recv() (*UploadImageRequest, error)
+	grpc.ServerStream
+}
+
+type laptopServiceUploadImageServer struct {
+	grpc.ServerStream
+}
+
+func (x *laptopServiceUploadImageServer) SendAndClose(m *UploadImageResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *laptopServiceUploadImageServer) Recv() (*UploadImageRequest, error) {
+	m := new(UploadImageRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _LaptopService_RateLaptop_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(LaptopServiceServer).RateLaptop(&laptopServiceRateLaptopServer{stream})
+}
+
+type LaptopService_RateLaptopServer interface {
+	Send(*RateLaptopResponse) error
+	Recv() (*RateLaptopRequest, error)
+	grpc.ServerStream
+}
+
+type laptopServiceRateLaptopServer struct {
+	grpc.ServerStream
+}
+
+func (x *laptopServiceRateLaptopServer) Send(m *RateLaptopResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *laptopServiceRateLaptopServer) Recv() (*RateLaptopRequest, error) {
+	m := new(RateLaptopRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // LaptopService_ServiceDesc is the grpc.ServiceDesc for LaptopService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LaptopService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "LaptopService",
+	ServiceName: "grpcservice.laptop.LaptopService",
 	HandlerType: (*LaptopServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -163,6 +310,17 @@ var LaptopService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "SearchLaptop",
 			Handler:       _LaptopService_SearchLaptop_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "UploadImage",
+			Handler:       _LaptopService_UploadImage_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "RateLaptop",
+			Handler:       _LaptopService_RateLaptop_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "laptop_service.proto",

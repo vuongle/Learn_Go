@@ -1,5 +1,7 @@
 syntax="proto3";
 
+package grpcservice.laptop;
+
 import "processor_message.proto";
 import "memory_message.proto";
 import "storage_message.proto";
@@ -7,7 +9,8 @@ import "screen_message.proto";
 import "keyboard_message.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/vuongle/grpc/pb";
+//option go_package = "github.com/vuongle/grpc/pb";
+option go_package = ".;pb";
 
 message Laptop {
     string id = 1;

@@ -15,6 +15,10 @@ import (
 func TestServiceCreateLaptop(t *testing.T) {
 	t.Parallel()
 
+	laptopStore := storages.NewInMemoryLaptopStore()
+	imageStore := storages.NewDiskImageStore("img")
+	ratingStore := storages.NewInMemoryRatingStore()
+
 	laptopNoID := sample.NewLaptop()
 	laptopNoID.Id = ""
 
@@ -28,34 +32,34 @@ func TestServiceCreateLaptop(t *testing.T) {
 
 	// Define test cases
 	testCases := []struct {
-		name   string
-		laptop *pb.Laptop
-		store  storages.LaptopStore
-		code   codes.Code
+		name        string
+		laptop      *pb.Laptop
+		laptopStore storages.LaptopStore
+		code        codes.Code
 	}{
 		{
-			name:   "success_with_id",
-			laptop: sample.NewLaptop(),
-			store:  storages.NewInMemoryLaptopStore(),
-			code:   codes.OK,
+			name:        "success_with_id",
+			laptop:      sample.NewLaptop(),
+			laptopStore: laptopStore,
+			code:        codes.OK,
 		},
 		{
-			name:   "success_no_id",
-			laptop: laptopNoID,
-			store:  storages.NewInMemoryLaptopStore(),
-			code:   codes.OK,
+			name:        "success_no_id",
+			laptop:      laptopNoID,
+			laptopStore: laptopStore,
+			code:        codes.OK,
 		},
 		{
-			name:   "fail_invalid_id",
-			laptop: laptopInvalidID,
-			store:  storages.NewInMemoryLaptopStore(),
-			code:   codes.InvalidArgument,
+			name:        "fail_invalid_id",
+			laptop:      laptopInvalidID,
+			laptopStore: laptopStore,
+			code:        codes.InvalidArgument,
 		},
 		{
-			name:   "fail_duplicate_id",
-			laptop: laptopDuplicateID,
-			store:  storeDuplicateID,
-			code:   codes.AlreadyExists,
+			name:        "fail_duplicate_id",
+			laptop:      laptopDuplicateID,
+			laptopStore: storeDuplicateID,
+			code:        codes.AlreadyExists,
 		},
 	}
 
@@ -68,7 +72,7 @@ func TestServiceCreateLaptop(t *testing.T) {
 				Laptop: tc.laptop,
 			}
 
-			laptopService := services.NewLaptopServer(tc.store)
+			laptopService := services.NewLaptopServer(tc.laptopStore, imageStore, ratingStore)
 
 			res, err := laptopService.CreateLaptop(context.Background(), req)
 			if tc.code == codes.OK {
