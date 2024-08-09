@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // bai toan: tinh tong binh phuong cua 1 day so
 // cach giai quyet: su dung cac pattern duoc goi la "pipeline", fan-in, fan-out
@@ -38,10 +40,10 @@ func main() {
 
 	// su dung pattern duoc goi la 'fan-out': nghia la lay cac gia tri trong "inputChan"
 	// chia ra cho cac channel con. trong vi du nay la chia cho 4 channel con
-	c1 := fanOut(inputChan)
-	c2 := fanOut(inputChan)
-	c3 := fanOut(inputChan)
-	c4 := fanOut(inputChan)
+	c1 := fanOut(1, inputChan)
+	c2 := fanOut(2, inputChan)
+	c3 := fanOut(3, inputChan)
+	c4 := fanOut(4, inputChan)
 
 	// su dung pattern duoc goi la 'fan-in': nghia la gom cac channel con thanh 1 channel
 	c := fanIn(c1, c2, c3, c4)
@@ -72,13 +74,14 @@ func generatePipeline(numbers []int) <-chan int {
 	return out
 }
 
-func fanOut(in <-chan int) <-chan int {
+func fanOut(workerID int, in <-chan int) <-chan int {
 	outSub := make(chan int)
 
 	go func() {
 		// lay tung gia tri ma generatePipeline send vao channel "in"
 		// va send no vo channel "outSub"
 		for n := range in {
+			fmt.Printf("worker %v send value: %v\n", workerID, n)
 			outSub <- (n * n)
 		}
 		close(outSub)
@@ -97,6 +100,7 @@ func fanIn(inputChannels ...<-chan int) <-chan int {
 			// duyet qua cac gia tri trong tung channel dang loop
 			for n := range c {
 				in <- n
+				fmt.Printf("fanIn: %v\n", n)
 			}
 		}
 	}()

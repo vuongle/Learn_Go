@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// The pipeline pattern structures a series of processing stages, with each stage executed concurrently. Data flows through these stages sequentially,
+// allowing efficient data transformation and processing
+//
 // This is another example of pipeline. the logic of pipeline is that:
 // stage 1: convert slice to channel
 // stage 2: square the number

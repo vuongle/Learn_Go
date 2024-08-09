@@ -3,11 +3,16 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"runtime"
+	"sync"
 )
 
-// This example combines the generator pattern and the pipeline pattern. This continues from the "generator" example.
-// This example also shows an usecase of slow process (stage 2 of the pipeline - primeFinder()).
-// The slow problem will be solved by using the fan out/fan in patterns (fan_out_in_pattern.go).
+//The fan-out/fan-in pattern involves distributing tasks to multiple worker goroutines (fan-out) and then aggregating their results (fan-in).
+// It’s useful for parallelizing tasks and combining their outcomes.
+//
+// This example use fan out and fan in pattern to resolve the problem in "generator_pipeline_combine.go".
+// fan out: start multiple goroutines to read and process data from a channel
+// fan in: combine data from multiple channels into a single channel
 // See the pictures in the same folder as the flow
 
 // If running this example, the program will generate random numbers in 10 times.
@@ -22,8 +27,18 @@ func main() {
 		return rand.Intn(50000000)
 	}
 	randNumStream := generator(done, randNumFetcher) // stage 1
-	primeStream := primeFinder(done, randNumStream)  // stage 2
-	for rando := range take(done, primeStream, 5) {
+
+	// fan out
+	CPUCount := runtime.NumCPU()
+	// create a slice of un-buffered channels. each item in the slice is a un-buffered channel. CPUCount is the length of the slice
+	primesFinderChannels := make([]<-chan int, CPUCount)
+	for i := 0; i < CPUCount; i++ {
+		primesFinderChannels[i] = primeFinder(done, randNumStream)
+	}
+
+	// fan in
+	fanInStream := fanIn(done, primesFinderChannels...)
+	for rando := range take(done, fanInStream, 10) {
 		fmt.Println(rando)
 	}
 }
@@ -94,4 +109,35 @@ func primeFinder(done <-chan int, randNumerStream <-chan int) <-chan int {
 	}()
 
 	return primes
+}
+
+func fanIn[T any](done <-chan int, channels ...<-chan T) <-chan T {
+	var wg sync.WaitGroup
+	fanInStream := make(chan T)
+
+	// define an inner func to transer data from channels to fanInStream
+	transfer := func(c <-chan T) {
+		defer wg.Done()
+		for i := range c {
+			select {
+			case <-done:
+				return
+			case fanInStream <- i:
+			}
+		}
+	}
+
+	// call transfer func for each channel
+	for _, c := range channels {
+		wg.Add(1)
+		go transfer(c)
+	}
+
+	// wait for all goroutines to finish
+	go func() {
+		wg.Wait()
+		close(fanInStream)
+	}()
+
+	return fanInStream
 }
