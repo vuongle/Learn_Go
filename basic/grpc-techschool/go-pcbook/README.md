@@ -80,3 +80,35 @@ nginx -s quit	graceful shutdown
 nginx -s reload	changing configuration, starting new worker processes with a new configuration, graceful shutdown of old worker processes
 nginx -s reopen	re-opening log files
 ```
+
+## nginx config in macos (worked)
+
+```
+worker_processes  1;
+
+error_log  /opt/homebrew/var/log/nginx/error.log;
+
+
+events {
+    worker_connections  10;
+}
+
+
+http {
+    access_log  /opt/homebrew/var/log/nginx/access.log;
+
+    upstream pcbook_services {
+        server 0.0.0.0:50051;
+        server 0.0.0.0:50052;
+    }
+
+    server {
+        listen       8080;
+        http2 on;
+
+        location / {
+            grpc_pass grpc://pcbook_services;
+        }
+    }
+}
+```
